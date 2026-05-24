@@ -1,8 +1,104 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'login_page.dart';
 
-class SignupPage extends StatelessWidget {
+
+class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
+
+  @override
+  State<SignupPage> createState() => _SignupPageState();
+}
+
+class _SignupPageState extends State<SignupPage> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+  
+  bool _isLoading = false;
+  bool _termsAccepted = false;
+
+  Future<void> _signUp() async {
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    final confirmPassword = _confirmPasswordController.text.trim();
+
+    if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
+
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+
+    if (!_termsAccepted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please accept the terms & conditions')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      // 1. Create user in Firebase Auth
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // 2. Save user details to Firestore
+      if (userCredential.user != null) {
+        await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+          'fullName': name,
+          'email': email,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      // 3. Sign out the newly created user so they are forced to log in manually
+      await FirebaseAuth.instance.signOut();
+
+      // 4. Navigate to LoginPage
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Account created successfully! Please login.')),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message ?? 'An error occurred during sign up.')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,13 +159,13 @@ class SignupPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 30),
                 // Fields
-                _buildField(label: 'Full Name'),
+                _buildField(label: 'Full Name', controller: _nameController),
                 const SizedBox(height: 15),
-                _buildField(label: 'Email Address'),
+                _buildField(label: 'Email Address', controller: _emailController),
                 const SizedBox(height: 15),
-                _buildField(label: 'Password', isObscure: true, hasVisibilityIcon: true),
+                _buildField(label: 'Password', controller: _passwordController, isObscure: true, hasVisibilityIcon: true),
                 const SizedBox(height: 15),
-                _buildField(label: 'Confirm Password', isObscure: true, hasVisibilityIcon: true),
+                _buildField(label: 'Confirm Password', controller: _confirmPasswordController, isObscure: true, hasVisibilityIcon: true),
                 const SizedBox(height: 25),
                 // Checkbox
                 Row(
@@ -78,8 +174,12 @@ class SignupPage extends StatelessWidget {
                       width: 24,
                       height: 24,
                       child: Checkbox(
-                        value: false,
-                        onChanged: (val) {},
+                        value: _termsAccepted,
+                        onChanged: (val) {
+                          setState(() {
+                            _termsAccepted = val ?? false;
+                          });
+                        },
                         side: const BorderSide(color: Colors.black),
                         activeColor: Colors.black,
                       ),
@@ -99,12 +199,7 @@ class SignupPage extends StatelessWidget {
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const LoginPage()),
-                      );
-                    },
+                    onPressed: _isLoading ? null : _signUp,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
@@ -113,7 +208,9 @@ class SignupPage extends StatelessWidget {
                       ),
                       elevation: 0,
                     ),
-                    child: const Text('Sign Up', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    child: _isLoading 
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text('Sign Up', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 const SizedBox(height: 15),
@@ -155,7 +252,7 @@ class SignupPage extends StatelessWidget {
                       const Text("Already have an account? ", style: TextStyle(color: Colors.black)),
                       GestureDetector(
                         onTap: () {
-                          Navigator.push(
+                          Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(builder: (context) => const LoginPage()),
                           );
@@ -181,8 +278,14 @@ class SignupPage extends StatelessWidget {
     );
   }
 
-  Widget _buildField({required String label, bool isObscure = false, bool hasVisibilityIcon = false}) {
+  Widget _buildField({
+    required String label, 
+    required TextEditingController controller,
+    bool isObscure = false, 
+    bool hasVisibilityIcon = false
+  }) {
     return TextField(
+      controller: controller,
       obscureText: isObscure,
       decoration: InputDecoration(
         labelText: label,

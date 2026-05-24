@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'clothes_page.dart';
 import 'categories_page.dart';
 import 'product_description_page.dart';
-import 'home_page.dart';
+import 'shoes_page.dart';
+import 'bage_page.dart';
+import 'beautyproducts_page.dart';
+
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -136,12 +139,27 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   }
 
   void _onItemTap(Map<String, dynamic> item) {
-    if (item['type'] == 'product' && item['name'] == 'Roller Rabbit') {
+    if (item['type'] == 'product') {
+      // Map search item to product map format
+      final product = {
+        'name': item['name'],
+        'price': double.tryParse(item['subtitle'].toString().split('\$').last) ?? 0.0,
+        'imageAsset': item['image'],
+      };
       Navigator.push(context,
-          MaterialPageRoute(builder: (_) => const ProductDescriptionPage()));
+          MaterialPageRoute(builder: (_) => ProductDescriptionPage(product: product)));
     } else if (item['type'] == 'category' && item['name'] == 'Clothes') {
       Navigator.push(context,
           MaterialPageRoute(builder: (_) => const ClothesPage()));
+    } else if (item['type'] == 'category' && item['name'] == 'Shoes') {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (_) => const ShoesPage()));
+    } else if (item['type'] == 'category' && item['name'] == 'Bags') {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (_) => const BagePage()));
+    } else if (item['type'] == 'category' && item['name'] == 'Beauty Products') {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (_) => const BeautyProductsPage()));
     } else if (item['type'] == 'category') {
       Navigator.push(context,
           MaterialPageRoute(builder: (_) => const CategoriesPage()));
@@ -407,7 +425,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                       width: 80,
                       height: 80,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
+                      errorBuilder: (_, _, _) => Container(
                         width: 80,
                         height: 80,
                         color: const Color(0xFFE0F4F5),
@@ -472,3 +490,4 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     );
   }
 }
+

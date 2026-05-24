@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'clothes_page.dart';
+import 'shoes_page.dart';
+import 'bage_page.dart';
+import 'beautyproducts_page.dart';
 import 'profile_page.dart';
 import 'home_page.dart';
 import 'search_page.dart';
+import 'settings_page.dart';
+import 'favorites_page.dart';
 
 class CategoriesPage extends StatelessWidget {
   const CategoriesPage({super.key});
@@ -10,12 +15,11 @@ class CategoriesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF4FB6B9), // Matching the app's teal theme
+      backgroundColor: const Color(0xFF4FB6B9),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top App Bar
             Padding(
               padding: const EdgeInsets.only(left: 20, right: 20, top: 15, bottom: 20),
               child: Row(
@@ -35,8 +39,6 @@ class CategoriesPage extends StatelessWidget {
                 ],
               ),
             ),
-
-            // "Categories" Title
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.0),
               child: Text(
@@ -48,10 +50,7 @@ class CategoriesPage extends StatelessWidget {
                 ),
               ),
             ),
-
             const SizedBox(height: 20),
-
-            // The List of Categories
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -68,22 +67,34 @@ class CategoriesPage extends StatelessWidget {
                   const SizedBox(height: 15),
                   _buildCategoryCard(
                     context,
-                    'Bages',
+                    'Bags',
                     'lib/assets/images/Categories/Download_2.jpg',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const BagePage()),
+                    ),
                   ),
                   const SizedBox(height: 15),
                   _buildCategoryCard(
                     context,
                     'Shoes',
                     'lib/assets/images/Categories/Download_3.jpg',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ShoesPage()),
+                    ),
                   ),
                   const SizedBox(height: 15),
                   _buildCategoryCard(
                     context,
-                    'Beauty products',
+                    'Beauty Products',
                     'lib/assets/images/Categories/Download_4.jpg',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const BeautyProductsPage()),
+                    ),
                   ),
-                  const SizedBox(height: 30), // Bottom padding
+                  const SizedBox(height: 30),
                 ],
               ),
             ),
@@ -110,7 +121,6 @@ class CategoriesPage extends StatelessWidget {
         child: Center(
           child: Stack(
             children: [
-              // Outline text
               Text(
                 title,
                 style: TextStyle(
@@ -120,10 +130,9 @@ class CategoriesPage extends StatelessWidget {
                   foreground: Paint()
                     ..style = PaintingStyle.stroke
                     ..strokeWidth = 3
-                    ..color = const Color(0xFF1E6C79), // Dark teal outline
+                    ..color = const Color(0xFF1E6C79),
                 ),
               ),
-              // Solid white text
               Text(
                 title,
                 style: const TextStyle(
@@ -142,48 +151,68 @@ class CategoriesPage extends StatelessWidget {
 
   Widget _buildBottomNavBar(BuildContext context) {
     return Container(
-      height: 75,
-      color: Colors.white,
+      margin: const EdgeInsets.all(20),
+      height: 70,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(35),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          // Home
-          GestureDetector(
-            onTap: () => Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (_) => const HomePage()),
-              (route) => false,
-            ),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: const Color(0xFF4FB6B9),
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFF1E6C79), width: 2),
-              ),
-              child: const Icon(Icons.home_outlined, color: Colors.black, size: 30),
-            ),
-          ),
-
-          // Notifications
-          const Icon(Icons.notifications_none, color: Colors.black, size: 35),
-
-          // User Profile
-          GestureDetector(
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ProfilePage()),
-            ),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFF1E6C79), width: 2.5),
-              ),
-              child: const Icon(Icons.person, color: Colors.black, size: 30),
-            ),
-          ),
+          _buildNavBarItem(Icons.home_outlined, context),
+          _buildNavBarItem(Icons.settings_outlined, context),
+          _buildNavBarItem(Icons.favorite_border, context),
+          _buildNavBarItem(Icons.person_outline, context),
         ],
+      ),
+    );
+  }
+
+  Widget _buildNavBarItem(IconData icon, BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        if (icon == Icons.home_outlined) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const HomePage()),
+            (route) => false,
+          );
+        } else if (icon == Icons.settings_outlined) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const SettingsPage()),
+          );
+        } else if (icon == Icons.favorite_border) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const FavoritesPage()),
+          );
+        } else if (icon == Icons.person_outline) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ProfilePage()),
+          );
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          color: Colors.black,
+          size: 28,
+        ),
       ),
     );
   }

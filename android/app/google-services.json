@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "579213889163",
+    "project_id": "yasir-fashion-stores",
+    "storage_bucket": "yasir-fashion-stores.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:579213889163:android:81ab923ace13f48ab50e8e",
+        "android_client_info": {
+          "package_name": "com.yasir.fashion_stores"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "579213889163-l2pikckn0a83vr4filikvsesc7bghqd1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBI-P1Tafei_JCBoJlJqLRRA0_iwMsxK5E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "579213889163-l2pikckn0a83vr4filikvsesc7bghqd1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "579213889163-sckugg8eiqah0b0232k6on3d1mevqj1r.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flutterApplication1"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
